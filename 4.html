@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>4</title>
@@ -43,6 +43,48 @@
       $axure.utils.getTransparentGifPath = function() { return 'resources/images/transparent.gif'; };
       $axure.utils.getOtherPath = function() { return 'resources/Other.html'; };
       $axure.utils.getReloadPath = function() { return 'resources/reload.html'; };
+    </script>
+    <script>
+      $(document).ready(function() {
+        // Xử lý khi nhấn nút Gửi
+        $('#u31').click(function() {
+          const message = $('#u35_input').val();
+          
+          if (!message) {
+            alert('Vui lòng nhập nội dung tin nhắn!');
+            return;
+          }
+
+          // Lấy danh sách tin nhắn hiện tại
+          const messages = JSON.parse(localStorage.getItem('userMessages') || '[]');
+          
+          // Thêm tin nhắn mới
+          messages.push({
+            message: message,
+            time: new Date().getTime()
+          });
+          
+          // Lưu vào localStorage
+          localStorage.setItem('userMessages', JSON.stringify(messages));
+          
+          // Hiển thị thông báo thành công
+          $('#u32').css('display', 'block');
+          $('#u32').css('visibility', 'visible');
+          $('#u33').css('display', 'block');
+          $('#u33').css('visibility', 'visible');
+          
+          // Xóa nội dung input
+          $('#u35_input').val('');
+          
+          // Ẩn thông báo sau 3 giây
+          setTimeout(function() {
+            $('#u32').css('display', 'none');
+            $('#u32').css('visibility', 'hidden');
+            $('#u33').css('display', 'none');
+            $('#u33').css('visibility', 'hidden');
+          }, 3000);
+        });
+      });
     </script>
   </head>
   <body>
