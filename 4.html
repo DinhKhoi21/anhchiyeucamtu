@@ -8,6 +8,13 @@
     <link href="resources/css/axure_rp_page.css" type="text/css" rel="stylesheet"/>
     <link href="data/styles.css" type="text/css" rel="stylesheet"/>
     <link href="files/4/styles.css" type="text/css" rel="stylesheet"/>
+    <link href="files/4/custom.css" type="text/css" rel="stylesheet"/>
+    <style>
+      /* Hide Axure prototype elements */
+      #topPanel, #leftPanel, #mainPanel { display: none !important; }
+      body { margin: 0; padding: 0; }
+      .ax_default_hidden { display: none !important; }
+    </style>
     <script src="resources/scripts/jquery-3.2.1.min.js"></script>
     <script src="resources/scripts/axure/axQuery.js"></script>
     <script src="resources/scripts/axure/globals.js"></script>
@@ -64,6 +71,25 @@
       const database = firebase.database();
 
       $(document).ready(function() {
+        // Ẩn các phần tử Axure
+        $('#topPanel, #leftPanel, #mainPanel').hide();
+        $('.ax_default_hidden').hide();
+        
+        // Xóa margin và padding không cần thiết
+        $('body').css({
+          'margin': '0',
+          'padding': '0',
+          'overflow-x': 'hidden'
+        });
+        
+        // Center the main content
+        $('#u29').css({
+          'position': 'absolute',
+          'left': '50%',
+          'transform': 'translateX(-50%)',
+          'top': '20px'
+        });
+        
         // Log để kiểm tra Firebase đã được khởi tạo chưa
         console.log('Firebase database:', database);
         

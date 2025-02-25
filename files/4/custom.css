@@ -1,0 +1,63 @@
+/* Hide Axure prototype elements */
+#base {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* Hide Axure's top panel */
+#topPanel {
+    display: none !important;
+}
+
+/* Hide other Axure UI elements */
+.ax_default_hidden {
+    display: none !important;
+}
+
+/* Adjust main content position */
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Center the main content */
+#u29 {
+    position: absolute;
+    left: 50% !important;
+    transform: translateX(-50%);
+    top: 20px !important;
+}
+
+/* Make form elements more modern */
+.u35_input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+/* Style the submit button */
+#u31 {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#u31:hover {
+    background-color: #45a049;
+}
+
+/* Style success message */
+#u32 {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+    margin-top: 10px;
+    text-align: center;
+}

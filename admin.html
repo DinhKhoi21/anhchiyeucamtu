@@ -14,23 +14,12 @@
             background-color: #f5f5f5;
         }
         .login-container, .admin-container {
-            max-width: 800px;
+            max-width: 1200px;
             margin: 50px auto;
             padding: 20px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .message-card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 4px;
-            background: white;
-        }
-        .message-time {
-            color: #666;
-            font-size: 0.9em;
         }
         input {
             width: 100%;
@@ -62,6 +51,44 @@
         #logout:hover {
             background: #d32f2f;
         }
+        
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Status indicator */
+        .status {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+        .status.new {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .status.read {
+            background-color: #999;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -77,7 +104,18 @@
             <h2>Admin Panel - Messages</h2>
             <button id="logout" onclick="logout()">Logout</button>
         </div>
-        <div id="messageList"></div>
+        <table id="messageTable">
+            <thead>
+                <tr>
+                    <th>Thời gian</th>
+                    <th>Nội dung</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody id="messageList">
+            </tbody>
+        </table>
     </div>
 
     <script>
@@ -105,21 +143,35 @@
             const password = document.getElementById('password').value;
 
             if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
-                sessionStorage.setItem('adminLoggedIn', 'true');
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
+                
+                // Lưu thời gian đăng nhập vào localStorage
+                const loginExpiry = Date.now() + (15 * 60 * 1000); // 15 phút
+                localStorage.setItem('adminLoginExpiry', loginExpiry);
+                
                 loadMessages();
             } else {
-                alert('Invalid credentials!');
+                alert('Sai tên đăng nhập hoặc mật khẩu!');
             }
         }
 
         function logout() {
-            sessionStorage.removeItem('adminLoggedIn');
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('adminPanel').style.display = 'none';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
+            localStorage.removeItem('adminLoginExpiry');
+        }
+
+        function markAsRead(messageId) {
+            database.ref('messages/' + messageId).update({
+                status: 'read'
+            });
+        }
+
+        function deleteMessage(messageId) {
+            if(confirm('Bạn có chắc muốn xóa tin nhắn này?')) {
+                database.ref('messages/' + messageId).remove();
+            }
         }
 
         function loadMessages() {
@@ -136,14 +188,13 @@
                     .sort((a, b) => b.time - a.time);
 
                 if (messageArray.length === 0) {
-                    messageList.innerHTML = '<p>No messages yet.</p>';
+                    messageList.innerHTML = '<tr><td colspan="4">Không có tin nhắn nào.</td></tr>';
                     return;
                 }
 
                 // Display messages
                 messageArray.forEach(msg => {
-                    const card = document.createElement('div');
-                    card.className = 'message-card';
+                    const row = document.createElement('tr');
                     
                     // Sanitize message content
                     const sanitizedMessage = msg.message
@@ -153,23 +204,37 @@
                         .replace(/"/g, '&quot;')
                         .replace(/'/g, '&#039;');
                     
-                    card.innerHTML = `
-                        <div class="message-time">${new Date(msg.time).toLocaleString()}</div>
-                        <div class="message-content">${sanitizedMessage}</div>
+                    row.innerHTML = `
+                        <td>${new Date(msg.time).toLocaleString()}</td>
+                        <td>${sanitizedMessage}</td>
+                        <td><span class="status ${msg.status || 'new'}">${msg.status || 'Mới'}</span></td>
+                        <td>
+                            <button onclick="markAsRead('${msg.key}')" style="background: #2196F3;">Đánh dấu đã đọc</button>
+                            <button onclick="deleteMessage('${msg.key}')" style="background: #f44336;">Xóa</button>
+                        </td>
                     `;
-                    messageList.appendChild(card);
+                    messageList.appendChild(row);
                 });
             }, (error) => {
-                messageList.innerHTML = `<p style="color: red;">Error loading messages: ${error.message}</p>`;
+                messageList.innerHTML = `<tr><td colspan="4" style="color: red;">Lỗi tải tin nhắn: ${error.message}</td></tr>`;
             });
         }
 
-        // Check if user is already logged in
-        if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-            document.getElementById('loginForm').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'block';
-            loadMessages();
-        }
+        // Kiểm tra trạng thái đăng nhập khi tải trang
+        window.onload = function() {
+            const loginExpiry = localStorage.getItem('adminLoginExpiry');
+            if (loginExpiry && Date.now() < parseInt(loginExpiry)) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                loadMessages();
+                
+                // Tự động gia hạn thời gian đăng nhập khi người dùng tương tác
+                document.onclick = function() {
+                    const newExpiry = Date.now() + (15 * 60 * 1000);
+                    localStorage.setItem('adminLoginExpiry', newExpiry);
+                };
+            }
+        };
     </script>
 </body>
 </html>
