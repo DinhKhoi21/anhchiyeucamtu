@@ -83,13 +83,13 @@
     <script>
         // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyDXkHOQjmGMoEOzY0kbhFW9aYqm5qnRB-E",
-            authDomain: "contact-form-demo-c8d9b.firebaseapp.com",
-            databaseURL: "https://contact-form-demo-c8d9b-default-rtdb.firebaseio.com",
-            projectId: "contact-form-demo-c8d9b",
-            storageBucket: "contact-form-demo-c8d9b.appspot.com",
-            messagingSenderId: "1075482223043",
-            appId: "1:1075482223043:web:b8b8b8b8b8b8b8b8b8b8b8"
+            apiKey: "AIzaSyDUJQmRWBBbdF9uoVNXOGCRLgCVNxPSGlw",
+            authDomain: "khongkhong12-755ec.firebaseapp.com",
+            databaseURL: "https://khongkhong12-755ec-default-rtdb.firebaseio.com",
+            projectId: "khongkhong12-755ec",
+            storageBucket: "khongkhong12-755ec.appspot.com",
+            messagingSenderId: "1011219565499",
+            appId: "1:1011219565499:web:0a5c0e5d2f7c6a5c2f7c6a"
         };
 
         // Initialize Firebase
@@ -105,6 +105,7 @@
             const password = document.getElementById('password').value;
 
             if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
                 document.getElementById('loginForm').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
                 loadMessages();
@@ -114,6 +115,7 @@
         }
 
         function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
             document.getElementById('loginForm').style.display = 'block';
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('username').value = '';
@@ -142,12 +144,23 @@
                 messageArray.forEach(msg => {
                     const card = document.createElement('div');
                     card.className = 'message-card';
+                    
+                    // Sanitize message content
+                    const sanitizedMessage = msg.message
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#039;');
+                    
                     card.innerHTML = `
                         <div class="message-time">${new Date(msg.time).toLocaleString()}</div>
-                        <div class="message-content">${msg.message}</div>
+                        <div class="message-content">${sanitizedMessage}</div>
                     `;
                     messageList.appendChild(card);
                 });
+            }, (error) => {
+                messageList.innerHTML = `<p style="color: red;">Error loading messages: ${error.message}</p>`;
             });
         }
 

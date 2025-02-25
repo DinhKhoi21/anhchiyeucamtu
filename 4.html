@@ -4,6 +4,7 @@
     <title>4</title>
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
+    <meta http-equiv="Content-Security-Policy" content="frame-src 'self' https://*.firebaseapp.com https://*.firebase.com https://*.gstatic.com"/>
     <link href="resources/css/axure_rp_page.css" type="text/css" rel="stylesheet"/>
     <link href="data/styles.css" type="text/css" rel="stylesheet"/>
     <link href="files/4/styles.css" type="text/css" rel="stylesheet"/>
@@ -49,13 +50,13 @@
     <script>
       // Firebase configuration
       const firebaseConfig = {
-        apiKey: "AIzaSyDXkHOQjmGMoEOzY0kbhFW9aYqm5qnRB-E",
-        authDomain: "contact-form-demo-c8d9b.firebaseapp.com",
-        databaseURL: "https://contact-form-demo-c8d9b-default-rtdb.firebaseio.com",
-        projectId: "contact-form-demo-c8d9b",
-        storageBucket: "contact-form-demo-c8d9b.appspot.com",
-        messagingSenderId: "1075482223043",
-        appId: "1:1075482223043:web:b8b8b8b8b8b8b8b8b8b8b8"
+        apiKey: "AIzaSyDUJQmRWBBbdF9uoVNXOGCRLgCVNxPSGlw",
+        authDomain: "khongkhong12-755ec.firebaseapp.com",
+        databaseURL: "https://khongkhong12-755ec-default-rtdb.firebaseio.com",
+        projectId: "khongkhong12-755ec",
+        storageBucket: "khongkhong12-755ec.appspot.com",
+        messagingSenderId: "1011219565499",
+        appId: "1:1011219565499:web:0a5c0e5d2f7c6a5c2f7c6a"
       };
 
       // Initialize Firebase
@@ -63,9 +64,16 @@
       const database = firebase.database();
 
       $(document).ready(function() {
+        // Log để kiểm tra Firebase đã được khởi tạo chưa
+        console.log('Firebase database:', database);
+        
         // Xử lý khi nhấn nút Gửi
-        $('#u31').click(function() {
+        $('#u31, #u31_div, #u31_text').click(function(e) {
+          e.preventDefault();
+          console.log('Button clicked');
+          
           const message = $('#u35_input').val();
+          console.log('Message:', message);
           
           if (!message) {
             alert('Vui lòng nhập nội dung tin nhắn!');
@@ -74,12 +82,14 @@
 
           // Tạo reference mới cho tin nhắn
           const newMessageRef = database.ref('messages').push();
+          console.log('New message ref:', newMessageRef.key);
           
           // Lưu tin nhắn vào Firebase
           newMessageRef.set({
             message: message,
             time: Date.now()
           }).then(() => {
+            console.log('Message saved successfully');
             // Hiển thị thông báo thành công
             $('#u32').css('display', 'block');
             $('#u32').css('visibility', 'visible');
@@ -97,8 +107,19 @@
               $('#u33').css('visibility', 'hidden');
             }, 3000);
           }).catch((error) => {
+            console.error('Error saving message:', error);
             alert('Có lỗi xảy ra: ' + error.message);
           });
+        });
+
+        // Kiểm tra kết nối với Firebase
+        const connectedRef = database.ref(".info/connected");
+        connectedRef.on("value", (snap) => {
+          if (snap.val() === true) {
+            console.log("Connected to Firebase");
+          } else {
+            console.log("Not connected to Firebase");
+          }
         });
       });
     </script>
