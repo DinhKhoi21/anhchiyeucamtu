@@ -44,7 +44,24 @@
       $axure.utils.getOtherPath = function() { return 'resources/Other.html'; };
       $axure.utils.getReloadPath = function() { return 'resources/reload.html'; };
     </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script>
+      // Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyBhYpwE6uBCWEVlhXVHnRU9iFBJRHVTJmE",
+        authDomain: "contact-form-demo-b8b5f.firebaseapp.com",
+        projectId: "contact-form-demo-b8b5f",
+        databaseURL: "https://contact-form-demo-b8b5f-default-rtdb.asia-southeast1.firebasedatabase.app",
+        storageBucket: "contact-form-demo-b8b5f.appspot.com",
+        messagingSenderId: "451371063252",
+        appId: "1:451371063252:web:8b9f9b9f9f9b9f9f9f9b9f"
+      };
+
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig);
+      const database = firebase.database();
+
       $(document).ready(function() {
         // Xử lý khi nhấn nút Gửi
         $('#u31').click(function() {
@@ -55,34 +72,33 @@
             return;
           }
 
-          // Lấy danh sách tin nhắn hiện tại
-          const messages = JSON.parse(localStorage.getItem('userMessages') || '[]');
+          // Tạo reference mới cho tin nhắn
+          const newMessageRef = database.ref('messages').push();
           
-          // Thêm tin nhắn mới
-          messages.push({
+          // Lưu tin nhắn vào Firebase
+          newMessageRef.set({
             message: message,
-            time: new Date().getTime()
+            time: Date.now()
+          }).then(() => {
+            // Hiển thị thông báo thành công
+            $('#u32').css('display', 'block');
+            $('#u32').css('visibility', 'visible');
+            $('#u33').css('display', 'block');
+            $('#u33').css('visibility', 'visible');
+            
+            // Xóa nội dung input
+            $('#u35_input').val('');
+            
+            // Ẩn thông báo sau 3 giây
+            setTimeout(function() {
+              $('#u32').css('display', 'none');
+              $('#u32').css('visibility', 'hidden');
+              $('#u33').css('display', 'none');
+              $('#u33').css('visibility', 'hidden');
+            }, 3000);
+          }).catch((error) => {
+            alert('Có lỗi xảy ra: ' + error.message);
           });
-          
-          // Lưu vào localStorage
-          localStorage.setItem('userMessages', JSON.stringify(messages));
-          
-          // Hiển thị thông báo thành công
-          $('#u32').css('display', 'block');
-          $('#u32').css('visibility', 'visible');
-          $('#u33').css('display', 'block');
-          $('#u33').css('visibility', 'visible');
-          
-          // Xóa nội dung input
-          $('#u35_input').val('');
-          
-          // Ẩn thông báo sau 3 giây
-          setTimeout(function() {
-            $('#u32').css('display', 'none');
-            $('#u32').css('visibility', 'hidden');
-            $('#u33').css('display', 'none');
-            $('#u33').css('visibility', 'hidden');
-          }, 3000);
         });
       });
     </script>

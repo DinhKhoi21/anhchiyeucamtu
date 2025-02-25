@@ -5,6 +5,8 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
     <meta http-equiv="content-type" content="text/html; charset=utf-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -79,6 +81,21 @@
     </div>
 
     <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBhYpwE6uBCWEVlhXVHnRU9iFBJRHVTJmE",
+            authDomain: "contact-form-demo-b8b5f.firebaseapp.com",
+            projectId: "contact-form-demo-b8b5f",
+            databaseURL: "https://contact-form-demo-b8b5f-default-rtdb.asia-southeast1.firebasedatabase.app",
+            storageBucket: "contact-form-demo-b8b5f.appspot.com",
+            messagingSenderId: "451371063252",
+            appId: "1:451371063252:web:8b9f9b9f9f9b9f9f9f9b9f"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
         // Admin credentials
         const ADMIN_USERNAME = 'admin';
         const ADMIN_PASSWORD = 'admin123';
@@ -105,28 +122,32 @@
 
         function loadMessages() {
             const messageList = document.getElementById('messageList');
-            messageList.innerHTML = '';
+            
+            // Listen for new messages
+            database.ref('messages').on('value', (snapshot) => {
+                messageList.innerHTML = '';
+                const messages = snapshot.val() || {};
+                
+                // Convert messages object to array and sort by time
+                const messageArray = Object.entries(messages)
+                    .map(([key, value]) => ({ ...value, key }))
+                    .sort((a, b) => b.time - a.time);
 
-            // Get messages from localStorage
-            const messages = JSON.parse(localStorage.getItem('userMessages') || '[]');
+                if (messageArray.length === 0) {
+                    messageList.innerHTML = '<p>No messages yet.</p>';
+                    return;
+                }
 
-            if (messages.length === 0) {
-                messageList.innerHTML = '<p>No messages yet.</p>';
-                return;
-            }
-
-            // Sort messages by time, newest first
-            messages.sort((a, b) => b.time - a.time);
-
-            // Display messages
-            messages.forEach(msg => {
-                const card = document.createElement('div');
-                card.className = 'message-card';
-                card.innerHTML = `
-                    <div class="message-time">${new Date(msg.time).toLocaleString()}</div>
-                    <div class="message-content">${msg.message}</div>
-                `;
-                messageList.appendChild(card);
+                // Display messages
+                messageArray.forEach(msg => {
+                    const card = document.createElement('div');
+                    card.className = 'message-card';
+                    card.innerHTML = `
+                        <div class="message-time">${new Date(msg.time).toLocaleString()}</div>
+                        <div class="message-content">${msg.message}</div>
+                    `;
+                    messageList.appendChild(card);
+                });
             });
         }
 
