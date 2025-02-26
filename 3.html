@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
   <head>
     <title>3</title>
@@ -44,6 +44,76 @@
       $axure.utils.getOtherPath = function() { return 'resources/Other.html'; };
       $axure.utils.getReloadPath = function() { return 'resources/reload.html'; };
     </script>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      #base {
+        width: 100%;
+        height: 100%;
+        position: relative;
+      }
+
+      #u22 {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      #u23 {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+      }
+
+      #u23_img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      #u24 {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-width: 400px;
+        text-align: center;
+      }
+
+      #u27 {
+        margin-bottom: 20px;
+        font-size: 24px;
+      }
+
+      #u25, #u26 {
+        display: inline-block;
+        margin: 10px;
+        padding: 10px 30px;
+        font-size: 18px;
+        border-radius: 5px;
+        cursor: pointer;
+        background: #4CAF50;
+        color: white;
+        border: none;
+        transition: all 0.3s;
+      }
+
+      #u25:hover, #u26:hover {
+        background: #45a049;
+        transform: scale(1.05);
+      }
+    </style>
   </head>
   <body>
     <div id="base" class="">

@@ -180,17 +180,18 @@
             // Listen for new messages
             database.ref('messages').on('value', (snapshot) => {
                 messageList.innerHTML = '';
-                const messages = snapshot.val() || {};
-                
+                const messages = snapshot.val();
+                console.log('Received messages:', messages);
+
+                if (!messages) {
+                    messageList.innerHTML = '<tr><td colspan="4">Không có tin nhắn nào.</td></tr>';
+                    return;
+                }
+
                 // Convert messages object to array and sort by time
                 const messageArray = Object.entries(messages)
                     .map(([key, value]) => ({ ...value, key }))
                     .sort((a, b) => b.time - a.time);
-
-                if (messageArray.length === 0) {
-                    messageList.innerHTML = '<tr><td colspan="4">Không có tin nhắn nào.</td></tr>';
-                    return;
-                }
 
                 // Display messages
                 messageArray.forEach(msg => {
@@ -198,27 +199,46 @@
                     
                     // Sanitize message content
                     const sanitizedMessage = msg.message
-                        .replace(/&/g, '&amp;')
-                        .replace(/</g, '&lt;')
-                        .replace(/>/g, '&gt;')
-                        .replace(/"/g, '&quot;')
-                        .replace(/'/g, '&#039;');
+                        ? msg.message
+                            .replace(/&/g, '&amp;')
+                            .replace(/</g, '&lt;')
+                            .replace(/>/g, '&gt;')
+                            .replace(/"/g, '&quot;')
+                            .replace(/'/g, '&#039;')
+                        : '';
+                    
+                    const status = msg.status || 'new';
+                    const statusText = status === 'new' ? 'Mới' : 'Đã đọc';
                     
                     row.innerHTML = `
-                        <td>${new Date(msg.time).toLocaleString()}</td>
+                        <td>${new Date(msg.time).toLocaleString('vi-VN')}</td>
                         <td>${sanitizedMessage}</td>
-                        <td><span class="status ${msg.status || 'new'}">${msg.status || 'Mới'}</span></td>
+                        <td><span class="status ${status}">${statusText}</span></td>
                         <td>
-                            <button onclick="markAsRead('${msg.key}')" style="background: #2196F3;">Đánh dấu đã đọc</button>
+                            ${status === 'new' ? 
+                                `<button onclick="markAsRead('${msg.key}')" style="background: #2196F3;">Đánh dấu đã đọc</button>` : 
+                                ''
+                            }
                             <button onclick="deleteMessage('${msg.key}')" style="background: #f44336;">Xóa</button>
                         </td>
                     `;
                     messageList.appendChild(row);
                 });
             }, (error) => {
+                console.error('Error loading messages:', error);
                 messageList.innerHTML = `<tr><td colspan="4" style="color: red;">Lỗi tải tin nhắn: ${error.message}</td></tr>`;
             });
         }
+
+        // Kiểm tra kết nối với Firebase
+        const connectedRef = database.ref(".info/connected");
+        connectedRef.on("value", (snap) => {
+            if (snap.val() === true) {
+                console.log("Connected to Firebase");
+            } else {
+                console.log("Not connected to Firebase");
+            }
+        });
 
         // Kiểm tra trạng thái đăng nhập khi tải trang
         window.onload = function() {
